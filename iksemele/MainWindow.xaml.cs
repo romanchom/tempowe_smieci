@@ -23,18 +23,55 @@ namespace iksemele {
 		Komis k;
 		List<Pracownik> personel;
 		public MainWindow() {
-			XmlSerializer ser = new XmlSerializer(typeof(Komis), "http://www.pkck.com");
-			using (StreamReader i = new StreamReader("komis.xml")) {
-				k = (Komis)ser.Deserialize(i);
-				System.Console.Write("ASDSADA");
-			}
+			
 			InitializeComponent();
-			PersonelDataGrid.ItemsSource = k.dane.content.personel;
+			
 		}
 
-		private void Button_Click(object sender, RoutedEventArgs e) {
-			System.Console.Write("ASDSADA");
+		private void Wczytaj(object sender, RoutedEventArgs e) {
+			Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
 
+			// Set filter for file extension and default file extension 
+			dlg.DefaultExt = ".xml";
+			dlg.Filter = "XML Files (*.xml)|*.xml";
+
+			// Display OpenFileDialog by calling ShowDialog method 
+			bool? result = dlg.ShowDialog();
+
+			// Get the selected file name and display in a TextBox 
+			if (result == true) {
+				// Open document 
+				string filename = dlg.FileName;
+				XmlSerializer ser = new XmlSerializer(typeof(Komis), "http://www.pkck.com");
+				using (StreamReader i = new StreamReader(filename)) {
+					k = (Komis)ser.Deserialize(i);
+				}
+				PersonelDataGrid.ItemsSource = k.dane.content.personel;
+				OperacjeDataGrid.ItemsSource = k.dane.content.operacje;
+				AktualneDataGrid.ItemsSource = k.dane.content.stan_aktualne;
+				ArchiwumDataGrid.ItemsSource = k.dane.content.stan_archiwum;
+			}
+		}
+
+		private void Zapisz(object sender, RoutedEventArgs e) {
+			Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
+
+			// Set filter for file extension and default file extension 
+			dlg.DefaultExt = ".xml";
+			dlg.Filter = "XML Files (*.xml)|*.xml";
+
+			// Display OpenFileDialog by calling ShowDialog method 
+			bool? result = dlg.ShowDialog();
+
+			// Get the selected file name and display in a TextBox 
+			if (result == true) {
+				// Open document 
+				string filename = dlg.FileName;
+				XmlSerializer ser = new XmlSerializer(typeof(Komis), "http://www.pkck.com");
+				using (StreamWriter o = new StreamWriter(filename)){
+					ser.Serialize(o, k);
+				}
+			}
 		}
 	}
 }

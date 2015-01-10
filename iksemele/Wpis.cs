@@ -6,16 +6,16 @@ using System.Xml.Serialization;
 
 namespace iksemele {
 	public class Wpis {
-		public DateTime data;
-		public decimal kwota;
-		public String uwagi;
+		public DateTime data { get; set; }
+		public decimal kwota { get; set; }
+		public String uwagi { get; set; }
 		[XmlAttribute("typ")]
-		public String typ;
+		public String typ { get; set; }
 		[XmlAttribute]
-		public String id_pracownika;
+		public String id_pracownika { get; set; }
 		[XmlAttribute]
-		public String nr_katalogowy;
-
+		public String nr_katalogowy { get; set; }
+		/*
 		private Pracownik m_pracownik;
 		[XmlIgnore]
 		public Pracownik pracownik{
@@ -38,6 +38,6 @@ namespace iksemele {
 				m_samochod = value;
 				nr_katalogowy = value.numerKatalogowy;
 			}
-		}
+		}*/
 	}
 }
