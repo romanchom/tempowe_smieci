@@ -6,7 +6,17 @@ using System.Xml.Serialization;
 
 namespace iksemele {
 	public class Wpis {
-		public DateTime data { get; set; }
+		[XmlIgnore]
+		private DateTime data { get; set; }
+		[XmlElement("data")]
+		public string psudoData {
+			get {
+				return data.ToString("yyyy-MM-dd");
+			}
+			set {
+				data = DateTime.Parse(value);
+			}
+		}
 		public decimal kwota { get; set; }
 		public String uwagi { get; set; }
 		[XmlAttribute("typ")]

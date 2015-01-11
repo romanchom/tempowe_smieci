@@ -13,6 +13,9 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Xml;
+using System.Xml.Linq;
+using System.Xml.Schema;
 using System.Xml.Serialization;
 
 namespace iksemele {
@@ -28,7 +31,7 @@ namespace iksemele {
 			
 		}
 
-		private void Wczytaj(object sender, RoutedEventArgs e) {
+		private void Wczytaj(object sender, RoutedEventArgs ev) {
 			Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
 
 			// Set filter for file extension and default file extension 
@@ -42,9 +45,13 @@ namespace iksemele {
 			if (result == true) {
 				// Open document 
 				string filename = dlg.FileName;
-				XmlSerializer ser = new XmlSerializer(typeof(Komis), "http://www.pkck.com");
-				using (StreamReader i = new StreamReader(filename)) {
-					k = (Komis)ser.Deserialize(i);
+				XDocument doc = XDocument.Load(filename);
+				
+				if (!Validate(doc)) return;
+
+				using (XmlReader reader = doc.CreateReader()) {
+					XmlSerializer ser = new XmlSerializer(typeof(Komis), "http://www.pkck.com");
+					k = (Komis)ser.Deserialize(reader);
 				}
 				PersonelDataGrid.ItemsSource = k.dane.content.personel;
 				OperacjeDataGrid.ItemsSource = k.dane.content.operacje;
@@ -53,7 +60,7 @@ namespace iksemele {
 			}
 		}
 
-		private void Zapisz(object sender, RoutedEventArgs e) {
+		private void Zapisz(object sender, RoutedEventArgs ev) {
 			Microsoft.Win32.SaveFileDialog dlg = new Microsoft.Win32.SaveFileDialog();
 
 			// Set filter for file extension and default file extension 
@@ -67,11 +74,35 @@ namespace iksemele {
 			if (result == true) {
 				// Open document 
 				string filename = dlg.FileName;
-				XmlSerializer ser = new XmlSerializer(typeof(Komis), "http://www.pkck.com");
-				using (StreamWriter o = new StreamWriter(filename)){
-					ser.Serialize(o, k);
+				XDocument doc = new XDocument();
+				using(XmlWriter writer = doc.CreateWriter()){
+					XmlSerializer ser = new XmlSerializer(typeof(Komis), "http://www.pkck.com");
+					ser.Serialize(writer, k);
 				}
+				if (!Validate(doc)) return;
+				doc.Save(filename);
 			}
+		}
+
+		private bool Validate(XDocument doc) {
+			XmlSchemaSet schemas = new XmlSchemaSet();
+			using (StreamReader schema = new StreamReader("komis.xsd")) {
+				schemas.Add("http://www.pkck.com", XmlReader.Create(schema));
+			}
+			bool hasErrors = false;
+			doc.Validate(schemas, (o, e) => {
+				if (e.Severity == XmlSeverityType.Error) {
+					MessageBox.Show(e.Message, "Schema validation error", MessageBoxButton.OK, MessageBoxImage.Error);
+					hasErrors = true;
+				}
+				else {
+					MessageBox.Show(e.Message, "Schema validation warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+				}
+			});
+			if (hasErrors) {
+				MessageBox.Show("Xml ma błędy.", "Błąd.", MessageBoxButton.OK, MessageBoxImage.Error);
+			}
+			return !hasErrors;
 		}
 	}
 }
