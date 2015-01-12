@@ -1,0 +1,146 @@
+<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'
+    targetNamespace='http://www.pkck.com'
+    xmlns:pkck='http://www.pkck.com'
+    elementFormDefault='qualified'>
+    <xsd:element name='samochód'>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name ='dane_ogólne'>
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name='marka' type='xsd:string'/>
+                            <xsd:element name='model' type='xsd:string'/>
+                            <xsd:element name='kolor' type='xsd:string'/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name='dane_sprzedaży'>
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name='cena' type='xsd:decimal'/>
+                            <xsd:element name='na_raty'>
+                                <xsd:simpleType>
+                                    <xsd:restriction base='xsd:string'>
+                                        <xsd:enumeration value='nie'/>
+                                        <xsd:enumeration value='tak'/>
+                                    </xsd:restriction>
+                                </xsd:simpleType>
+                            </xsd:element>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name='dane_techniczne'>
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name='paliwo' minOccurs='1' maxOccurs='unbounded'>
+                                <xsd:simpleType>
+                                    <xsd:restriction base='xsd:string'>
+                                        <xsd:enumeration value='benzyna'/>
+                                        <xsd:enumeration value='diesel'/>
+                                        <xsd:enumeration value='lpg'/>
+                                    </xsd:restriction>
+                                </xsd:simpleType>
+                            </xsd:element>
+                            <xsd:element name='pojemność_silnika' type='xsd:decimal'/>
+                            <xsd:element name='typ' type='xsd:string'/>
+                            <xsd:element name='rocznik' type='xsd:decimal'/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name='nr_katalogowy' type='xsd:string'/>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:element name='Komis'>
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name='authors'>
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name='student' type='xsd:string' minOccurs='0' maxOccurs='unbounded'/>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+                <xsd:element name='dane'>
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name='content'>
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                        <xsd:element name='personel'>
+                                            <xsd:complexType>
+                                                <xsd:sequence>
+                                                    <xsd:element name='pracownik' minOccurs='0' maxOccurs='unbounded'>
+                                                        <xsd:complexType>
+                                                            <xsd:sequence>
+                                                                <xsd:element name='imie' type='xsd:string'/>
+                                                                <xsd:element name='nazwisko' type='xsd:string'/>
+                                                            </xsd:sequence>
+                                                            <xsd:attribute name='id_pracownika' type='xsd:string'/>
+                                                        </xsd:complexType>
+                                                    </xsd:element>
+                                                </xsd:sequence>
+                                            </xsd:complexType>
+                                        </xsd:element>
+                                        <xsd:element name='stan-aktualne'>
+                                            <xsd:complexType>
+                                                <xsd:sequence>
+                                                    <xsd:element ref='pkck:samochód' minOccurs='0' maxOccurs='unbounded'/>
+                                                </xsd:sequence>
+                                            </xsd:complexType>
+                                        </xsd:element>
+                                        <xsd:element name='stan-archiwum'>
+                                            <xsd:complexType>
+                                                <xsd:sequence>
+                                                    <xsd:element ref='pkck:samochód' minOccurs='0' maxOccurs='unbounded'/>
+                                                </xsd:sequence>
+                                            </xsd:complexType>
+                                        </xsd:element>
+                                        <xsd:element name='operacje'>
+                                            <xsd:complexType>
+                                                <xsd:sequence>
+                                                    <xsd:element name='wpis' minOccurs='0' maxOccurs='unbounded'>
+                                                        <xsd:complexType>
+                                                            <xsd:sequence>
+                                                                <xsd:element name='data' type='xsd:date'/>
+                                                                <xsd:element name='kwota' type='xsd:decimal'/>
+                                                                <xsd:element name='uwagi' type='xsd:string'/>
+                                                            </xsd:sequence>
+                                                            <xsd:attribute name='typ'>
+                                                                
+                                                            </xsd:attribute>
+                                                            <xsd:attribute name='id_pracownika' type='xsd:string'/>
+                                                            <xsd:attribute name='nr_katalogowy' type='xsd:string'/>
+                                                        </xsd:complexType>
+                                                    </xsd:element>
+                                                </xsd:sequence>
+                                            </xsd:complexType>
+                                        </xsd:element>
+                                    </xsd:sequence>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+        </xsd:complexType>
+        
+        <xsd:key name='klucz_pracownika'>
+            <xsd:selector xpath='dane/content/personel/pracownik'/>
+            <xsd:field xpath='@id_pracownika'/>
+        </xsd:key>
+        <xsd:key name='klucz_samochodu'>
+            <xsd:selector xpath='dane/content/stan-aktualne/samochód|dane/content/stan-archiwum/samochód'/>
+            <xsd:field xpath='@nr_katalogowy'/>
+        </xsd:key>
+        <xsd:keyref name='klucz_pracownika_ref' refer='pkck:klucz_pracownika'>
+            <xsd:selector xpath='dane/content/operacje/wpis'/>
+            <xsd:field xpath='@id_pracownika'/>
+        </xsd:keyref>
+        <xsd:keyref name='klucz_samochodu_ref' refer='pkck:klucz_samochodu'>
+            <xsd:selector xpath='dane/content/operacje/wpis'/>
+            <xsd:field xpath='@nr_katalogowy'/>
+        </xsd:keyref>
+    </xsd:element>
+  
+</xsd:schema>
